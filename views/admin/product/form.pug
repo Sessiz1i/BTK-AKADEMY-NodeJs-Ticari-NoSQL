@@ -1,0 +1,41 @@
+extends ../../layouts/main-layout
+block content
+    include ../../partials/navbar
+    div.container
+        div.offset-lg-2
+            include ../../partials/title
+        div.row
+            div.col-lg-8.mx-auto
+                div.card.p-3.shadow.table-responsive
+                    div.card-body
+                        h4.card-title Product Information
+                        form(action=`/admin/add-product` method="POST")
+                            if product
+                                input(type="hidden", name="id" value=`${product.id}`)
+                            div.row.p-1
+                                label.form-label.mb-0(for="image") Image
+                                    input.form-control#image(value=(product ? `${product.imageUrl}` : null) type="text" name="imageUrl" aria-describedby="Image")
+                            div.row.p-1
+                                label.form-label.mb-0(for="name") Name
+                                    input.form-control#name(value=(product ? `${product.name}` : null) type="text" name="name" aria-describedby="Name")
+                            div.row.p-1
+                                label.form-label.mb-0(for="price") Price
+                                    input.form-control#price(value=(product ? `${product.price}` : null) type="text" name="price" aria-describedby="Price")
+                            div.row.p-1
+                                label.form-label.mb-0(for="price") Category
+                                    select.form-select#category(name="categoryId" aria-label="Default select example" aria-describedby="Category")
+                                        option(selected="true") Open this select menu
+                                        each category in categories
+                                            option(value=`${category.id}` selected=(product && category.id == product.categoryId ? true : false)) #{category.name}
+
+                            if product
+                                div.row.p-1
+                                    label.form-label.mb-0(for="description") Description
+                                        textarea.form-control#description(name="description" aria-describedby="Description" rows="4") #{product.description}
+                            else
+                                div.row.p-1
+                                    label.form-label.mb-0(for="description") Description
+                                        textarea.form-control#description(name="description" aria-describedby="Description" rows="4")
+                            div.p-1
+                                button.btn.btn-primary.float-end.text-uppercase(type="submit") #{title}
+

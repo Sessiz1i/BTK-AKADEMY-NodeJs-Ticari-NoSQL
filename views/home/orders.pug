@@ -1,0 +1,49 @@
+extends ../layouts/main-layout
+include ../mixins/product-list-card
+block content
+    include ../partials/navbar
+    div.container
+        div.offset-lg-1
+            include ../partials/title
+        div.row
+            div.col-lg-10.mx-auto
+                if orders.length > 0
+                    each order in orders
+                        div.card.mb-5.shadow
+                            div.card-header
+                                h3.m-auto Order Id : ##{order.id}
+                            div.card-body
+                                div.table-responsive
+                                    table.table.table-hover.align-middle
+                                        thead
+                                            tr
+                                                th(scope="col") #
+                                                th(scope="col") Image
+                                                th(scope="col") Product Name
+                                                th(scope="col") Price
+                                                th(scope="col") Quantity
+
+                                        tbody
+                                            each product in order.products
+                                                tr
+                                                    th(scope="row") #{product.id}
+                                                    td
+                                                        img.figure-img.align-middle(src=`/img/${product.imageUrl}` alt=`${product.name}` title=`${product.name}` width="30")
+
+                                                    td #{product.name}
+                                                    td #{product.orderItem.price}
+                                                    td #{product.orderItem.quantity}
+                                        - let total = 0
+                                        each product in order.products
+                                            - total += (product.orderItem.price * product.orderItem.quantity)
+                                        caption
+                                            div.row.d-flex.justify-content-between.text-end.mx-auto
+                                                div.col-auto Tarih : #{order.createdAt.toLocaleDateString().replaceAll(".", "/")}
+                                                div.col-auto Total : #{total}&nbsp;
+                                                    small.fas.fa-lira-sign.fa-sm(style="font-size: 13px;")
+
+                else
+                    h1 No Orders
+
+
+                include ../admin/product/deleteModal

@@ -1,0 +1,21 @@
+extends ../layouts/main-layout
+include ../mixins/product-list-card
+
+block content
+    include ../partials/navbar
+    div.container
+        div.offset-lg-3
+            include ../partials/title
+        div.row
+            div.col-lg-3
+                include ../partials/categories-list
+            div.col-lg-9
+                div.row
+                    if products.length >= 0
+                        each product in products
+                            div.col-md-3.pt-md-4
+                                +productListCard(product)
+                    else
+                        div.p-lg-4.py-sm-4.offcanvas-title.fw-bolder.text-primary.display-5 No Product
+    include ../mixins/product-detail-modal
+

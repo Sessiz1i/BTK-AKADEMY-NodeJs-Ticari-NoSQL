@@ -1,0 +1,6 @@
+div.collapsed.navbar-collapse.category
+    div.list-group.d-sm-block
+        if categories.length > 0
+            strong.list-group-item.fw-bold.bg-light Categories
+            each category in categories
+                a.list-group-item.list-group-item-action(class=(category.name === title? "active":null) href=`/products/category/${category.name.replace(" ","-").toLowerCase()}` title=`${category.description}`) #{category.name}

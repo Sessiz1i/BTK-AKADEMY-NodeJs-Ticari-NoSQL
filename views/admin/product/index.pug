@@ -1,0 +1,113 @@
+extends ../../layouts/main-layout
+
+block content
+    include ../../partials/navbar
+    div.container
+        div.offset-lg-1.col-md-10
+            include ../../partials/title
+            if feedBack
+                div#alert(style="display:none;")
+                    div.ms-2.alert.py-3.shadow-lg(class=(feedBack.status ? "alert-success" : 'alert-danger') role="alert")
+                        i.fas.fa-check &nbsp;&nbsp;
+                        strong The product named
+                                strong.text-primery &nbsp"#{feedBack.name}"&nbsp
+                        strong has been&nbsp;
+                        if feedBack.status == "create"
+                            strong CREATED
+                        else if feedBack.status == "update"
+                            strong UPDATED.
+                        else if feedBack.status == "delete"
+                            strong DELETED.
+        div.row
+            div.col-lg-10.mx-auto
+                div.card.shadow
+                    div.card-body
+                        div.row.p-3
+                            div.card-title
+                                form.row.g-2.float-end(method="post" action="products")
+                                    div.col-auto
+                                        input.form-control.form-control-sm.me-2(type="search" name="search" placeholder="Product Search..." aria-label="Product Search...")
+                                    div.col-auto
+                                        button.btn.btn-sm.btn-outline-success(type="submit") Search
+                                    div.col-auto
+                                        a.btn.btn-sm.btn-outline-success(href="/admin/form-product/")
+                                            i.fas.fa-plus &nbsp;
+                                            span ADD
+                            div.table-responsive
+                                table.table.table-hover.align-middle
+                                    thead
+                                        tr
+                                            th(scope="col") #
+                                            th(scope="col") Image
+                                            th(scope="col") Category
+                                            th(scope="col") Name
+                                            th(scope="col") Price
+                                            th(scope="col") Description
+                                            th(scope="col" width="100") Actions
+                                    tbody
+                                        if products.metatags.status === true
+                                            each product in products.products
+                                                tr
+                                                    th(scope="row") #{product.id}
+                                                    td
+                                                        img.figure-img(src=`/img/${product.imageUrl}` alt=`${product.name}` title=`${product.name}` width="50")
+                                                    each category in categories
+                                                         if category.id === product.categoryId
+                                                             td #{category.name}
+                                                    td #{product.name}
+                                                    td #{product.price}
+                                                    if product.description && product.description.length > 50
+                                                        td #{product.description.slice(0, 50)}
+                                                    else
+                                                        td #{product.description}
+                                                    td.text-center
+                                                        a(href=`/admin/form-product/${product.id}` title="Edit")
+                                                            i.fas.fa-edit.fa-lg.text-primary &nbsp;
+
+                                                        a.fas.fa-trash-alt.fa-lg.text-danger(role="button" data-bs-toggle="modal" data-bs-target=`#deleteModal` title=`${product.name} Detail`
+                                                            data-bs-id=`${product.id}`
+                                                            data-bs-image=`${product.image}`
+                                                            data-bs-name=`${product.name}`
+                                                            data-bs-price=`${product.price}`
+                                                            data-bs-description=`${product.description}`)
+                                        else
+                                            th(colspan="7")
+                                                span.display-6 #{"Products Not Found"}
+                            if products.metatags.status === true
+                                nav(aria-label="...")
+                                    ul.pagination
+                                        li.page-item(class=(products.metatags.hasPreviousPage === false ? 'disabled' : null))
+                                            a.page-link( href=`./products?page=${products.metatags.previousPage.page}&limit=5`) Previous
+                                        each paging in products.metatags.paging
+                                            li.page-item(class=(paging.active === true ? 'active' : null))
+                                                a.page-link( href=`./products?page=${paging.page}&limit=5`) #{paging.page}
+                                        fieldset(disabled)
+                                            li.page-item(class=(products.metatags.hasNextPage === false ? 'disabled' : null))
+                                                a.page-link( href=`./products?page=${products.metatags.nextPage.page}&limit=5`) Next
+
+    include ./deleteModal
+
+    if feedBack
+        script.
+            setTimeout(_ => {
+                $("#alert").slideDown(700)
+            }, 500)
+            setTimeout(_ => {
+                $("#alert").slideUp(700)
+            }, 4500)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

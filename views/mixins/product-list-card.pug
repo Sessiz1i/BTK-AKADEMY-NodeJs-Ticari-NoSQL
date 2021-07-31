@@ -1,0 +1,20 @@
+mixin productListCard(product)
+    div.card-shadow
+        div.card-body
+            a(role="button" data-bs-toggle="modal" data-bs-target=`#productModal` title=`${product.name} Detail`
+                data-bs-id=`${product.id}`
+                data-bs-image=`${product.imageUrl}`
+                data-bs-name=`${product.name}`
+                data-bs-price=`${product.price}`
+                data-bs-description=`${product.description}`)
+                img.card-img-top.h-50.w-100.py-2.mb-3(src=`/img/${product.imageUrl}` alt=`${product.name}`)
+            div
+                strong.text-primary #{product.name}
+            div.text-end
+                strong #{product.price}&nbsp;
+                    i.fas.fa-lira-sign
+            div.text-center.py-1
+                form(method="post" action="/cart")
+                    button(type="submit" name="productId" value=`${product.id}`)
+                        i.fas.fa-shopping-cart.fa-2x.text-warning(role="button" )
+

@@ -1,0 +1,43 @@
+body {
+    background-color: #fdfdfd;
+}
+
+button {
+    border: none;
+    background: none;
+}
+
+.card-shadow {
+
+}
+.card-shadow:hover {
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.30) !important;
+}
+
+*{
+ font-weight: unset;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
