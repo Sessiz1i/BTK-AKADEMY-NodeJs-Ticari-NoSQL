@@ -2,20 +2,22 @@ const express = require("express")
 const router = express.Router()
 // Controller
 const HomeController = require("../controllers/home/HomeController")
+const isAuth = require("../middleware/auth");
+const csrf = require("../middleware/csrf");
 
 // Route
 // Home
-router.get('/', HomeController.index)
+router.get('/',                             csrf,HomeController.index)
 // Products
-router.get('/products', HomeController.products)
-router.get('/products/category/:category', HomeController.getProductsByCategory)
+router.get('/products',                     csrf,HomeController.products)
+router.get('/products/category/:category',  csrf,HomeController.getProductsByCategory)
 // Cart
-router.get('/cart', HomeController.cartIndex)
-router.post('/cart', HomeController.postCart)
-router.post('/delete-cartitem', HomeController.deleteCart)
+router.get('/cart',                         csrf,isAuth,HomeController.indexCart)
+router.post('/cart',                        csrf,isAuth,HomeController.postCart)
+router.post('/delete-cartitem',             csrf,isAuth,HomeController.deleteCart)
 // Order
-router.get('/orders', HomeController.indexOrder)
-router.post('/create-order', HomeController.createOrder)
+router.get('/orders',                       csrf,isAuth,HomeController.indexOrder)
+router.post('/create-order',                csrf,isAuth,HomeController.createOrder)
 
 
 module.exports = router

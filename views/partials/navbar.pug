@@ -1,4 +1,4 @@
-nav.navbar.navbar-dark.bg-dark.navbar-expand-lg.fixed-top
+nav.navbar.navbar-dark.bg-dark.navbar-expand-md.fixed-top
     div.container
         a.navbar-brand(href="/") Shopping
         button.navbar-toggler(type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation")
@@ -8,36 +8,51 @@ nav.navbar.navbar-dark.bg-dark.navbar-expand-lg.fixed-top
                 li.nav-item.dropdown.category-nav    // Nav category hide
                     a.nav-link.dropdown-toggle#CategoryrDropdown(href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false") Categories
                     ul.dropdown-menu(aria-labelledby="CategoryrDropdown")
-                        each category in categories
-                            li
-                                a.dropdown-item(class=(category.name === title ? "active":null) href=`/products/category/${category.name.replace(" ","-").toLowerCase()}` title=`${category.description}`) #{category.name}
+                        if categories
+                            each category in categories
+                                li
+                                    a.dropdown-item(class=(category.name === title ? "active":null) href=`/products/category/${category.name.replace(" ","-").toLowerCase()}` title=`${category.description}`) #{category.name}
                 li.nav-item
                     a.nav-link(class=(title.replace(" ","-").toLowerCase() === 'products' ?"active": "") href="/products") Products
-                li.nav-item
-                    a.nav-link(class=(title.replace(" ","-").toLowerCase() === 'cart' ?"active": "") href="/cart") Cart
-                li.nav-item
-                    a.nav-link(class=(title.replace(" ","-").toLowerCase() === 'add-product' ?"active": "") href="/admin/form-product") Add Product
-                li.nav-item
-                    a.nav-link(class=(title.replace(" ", "-").toLowerCase() === 'product-list' ? "active" : "") href="/admin/products?page=1&limit=5") Admin Products
+                if isAuth
+                    li.nav-item
+                        a.nav-link(class=(title.replace(" ","-").toLowerCase() === 'cart' ?"active": "") href="/cart") Cart
+                    li.nav-item
+                        a.nav-link(class=(title.replace(" ","-").toLowerCase() === 'orders' ?"active": "") href="/orders") Orders
+            if isAuth && isAdmin
+                ul.navbar-nav.mb-2.mb-lg-0.mx-auto
+                    li.nav-item
+                        a.nav-link(class=(title.replace(" ","-").toLowerCase() === 'add-product' ?"active": "") href="/admin/form-product") Add Product
+                    li.nav-item
+                        a.nav-link(class=(title.replace(" ","-").toLowerCase() === 'add-category' ?"active": "") href="/admin/form-category") Add Category
+                    li.nav-item
+                        a.nav-link(class=(title.replace(" ", "-").toLowerCase() === 'product-list' ? "active" : "") href="/admin/products?page=1&limit=5") Products
+                    li.nav-item
+                        a.nav-link(class=(title.replace(" ", "-").toLowerCase() === 'category-list' ? "active" : "") href="/admin/categories?page=1&limit=5") Categories
             // Nav Bar Sağa Yakın
             ul.navbar-nav.mb-2.mb-lg-0.ms-auto
-                li.nav-item.dropdown
-                    a.nav-link.dropdown-toggle#CartDropdown(href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false") Cart
-                    ul.dropdown-menu(aria-labelledby="CartDropdown" style="width: 18rem;")
-                            // each product in products
-                            //         div.row.p-2
-                            //             div.col-md-4
-                            //                 img.img-fluid.rounded-start(src=`/img/${product.imageUrl}` alt=`${product.name}` title=`${product.name}`)
-                            //             div.col-md-8
-                            //                 div.d-flex.w-100.justify-content-between
-                            //                     h5.mb-1 #{product.name}
-                            //                     small #{product.cartItem.quantity} Piece
-                            //                 p.mb-1 #{product.description}
-                            //                 div.d-flex.w-100.justify-content-between
-                            //                     p.mb-1 &nbsp;
-                            //                     small #{product.price}&nbsp;
-                            //                         i.fas.fa-lira-sign.small
-                li.nav-item
-                    a.nav-link(href="#") &nbsp;&nbsp;Login
-                li.nav-item
-                    a.nav-link(href="#") Register
+                if isAuth
+                    li.nav-item.dropdown
+                        a.nav-link.dropdown-toggle#CartDropdown(href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false") Cart
+                        ul.dropdown-menu(aria-labelledby="CartDropdown" style="width: 18rem;")
+                                // each product in products
+                                //         div.row.p-2
+                                //             div.col-md-4
+                                //                 img.img-fluid.rounded-start(src=`/img/${product.imageUrl}` alt=`${product.name}` title=`${product.name}`)
+                                //             div.col-md-8
+                                //                 div.d-flex.w-100.justify-content-between
+                                //                     h5.mb-1 #{product.name}
+                                //                     small #{product.cartItem.quantity} Piece
+                                //                 p.mb-1 #{product.description}
+                                //                 div.d-flex.w-100.justify-content-between
+                                //                     p.mb-1 &nbsp;
+                                //                     small #{product.price}&nbsp;
+                                //                         i.fas.fa-lira-sign.small
+                if !isAuth
+                    li.nav-item
+                        a.nav-link(href="/account/login") &nbsp;&nbsp;Login
+                    li.nav-item
+                        a.nav-link(href="/account/register") Register
+                if isAuth
+                    li.nav-item
+                        a.nav-link(href="/account/Logout") Logout

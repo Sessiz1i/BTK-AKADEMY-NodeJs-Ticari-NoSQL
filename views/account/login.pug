@@ -1,0 +1,30 @@
+extends ../layouts/main-layout
+block content
+    //include ../partials/navbar
+    div.container
+        div.offset-lg-2
+            include ../partials/title
+        div.row
+            div.col-lg-8.mx-auto
+                if feedback
+                    div.shadow-lg.alert.alert-dismissible.fade.show(class=(feedback.status === "success" ? 'alert-success' : 'alert-danger') role="alert")
+                        i.fas(class=(feedback.status === "success" ? "fa-check" : "fa-times ")) &nbsp;
+                        strong #{feedback.message}
+                        button.btn-close(type="button"  data-bs-dismiss="alert" aria-label="Close")
+                div.card.p-3.shadow.table-responsive
+                    div.card-body
+                        h4.card-title #{title} Information
+                        form(action=`/account/login` method="POST")
+                            input(type="hidden" name="_csrf" value=`${csrfToken}`)
+                            div.row.p-1
+                                label.form-label.mb-0(for="email") Email
+                                    input.form-control#email(type="email" name="email" aria-describedby="Name")
+                            div.row.p-1
+                                label.form-label.mb-0(for="password") Password
+                                    input.form-control#password(type="password" name="password" aria-describedby="Password")
+                            div.d-flex.align-items-center
+                                a.nav-link(href="/account/register") Are you not registered?
+                                a.nav-link(href="/account/reset-password") Forgot Your Password?
+                            div.p-1
+                                button.btn.btn-primary.float-end.text-uppercase(type="submit") #{title}
+

@@ -11,7 +11,7 @@ block content
                     each order in orders
                         div.card.mb-5.shadow
                             div.card-header
-                                h3.m-auto Order Id : ##{order.id}
+                                h3.m-auto Order Id : # #{order._id}
                             div.card-body
                                 div.table-responsive
                                     table.table.table-hover.align-middle
@@ -24,21 +24,21 @@ block content
                                                 th(scope="col") Quantity
 
                                         tbody
-                                            each product in order.products
+                                            each product, index in order.items
                                                 tr
-                                                    th(scope="row") #{product.id}
+                                                    th(scope="row") #{index+1}
                                                     td
-                                                        img.figure-img.align-middle(src=`/img/${product.imageUrl}` alt=`${product.name}` title=`${product.name}` width="30")
+                                                        img.figure-img.align-middle(src=`/img/${product.product.imageUrl}` alt=`${product.product.name}` title=`${product.product.name}` width="30")
 
-                                                    td #{product.name}
-                                                    td #{product.orderItem.price}
-                                                    td #{product.orderItem.quantity}
+                                                    td #{product.product.name}
+                                                    td #{product.product.price}
+                                                    td #{product.quantity}
                                         - let total = 0
-                                        each product in order.products
-                                            - total += (product.orderItem.price * product.orderItem.quantity)
+                                        each product in order.items
+                                            - total += (product.product.price * product.quantity)
                                         caption
                                             div.row.d-flex.justify-content-between.text-end.mx-auto
-                                                div.col-auto Tarih : #{order.createdAt.toLocaleDateString().replaceAll(".", "/")}
+                                                div.col-auto Tarih : #{order.date}
                                                 div.col-auto Total : #{total}&nbsp;
                                                     small.fas.fa-lira-sign.fa-sm(style="font-size: 13px;")
 

@@ -1,0 +1,40 @@
+div.modal.fade(id=`deleteModal` tabindex="-1" aria-labelledby="deleteModal" aria-hidden="true")
+    div.modal-dialog.modal-dialog-centered
+        div.modal-content.bg-danger
+            div.modal-header
+                h5.modal-title.fw-bold.text-warning.py-0.mt-0#modalName Are you sure you want to delete?
+                button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+            div.modal-body
+                table
+                    tr
+                        td
+                            strong Name :&nbsp;
+                            span
+                            br
+                            strong Description :&nbsp;
+                            span
+            div.modal-footer
+                form.d-inline-block(method="post" action="/admin/delete-category")
+                    input(type="hidden" name="_csrf")
+                    input(type="hidden" name="id")
+                    input(type="hidden" name="name")
+                    button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Close
+                    button.btn.btn-warning.ms-2(type="submit") Delete
+
+script.
+
+    const deleteModal = document.getElementById('deleteModal')
+    deleteModal.addEventListener('show.bs.modal', event => {
+
+        const button = event.relatedTarget,
+            id = button.getAttribute('id'),
+            name = button.getAttribute('name'),
+            desc = button.getAttribute('description'),
+            token = button.getAttribute("csrf"),
+            selector = deleteModal.querySelectorAll("span,input")
+        selector[0].textContent = name
+        selector[1].textContent = desc
+        selector[2].value = token
+        selector[3].value = id
+        selector[4].value = name
+    });

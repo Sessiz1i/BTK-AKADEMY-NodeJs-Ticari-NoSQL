@@ -7,60 +7,61 @@ block content
             include ../partials/title
         div.row
             div.col-lg-10.mx-auto
-                div.card.shadow
-                    div.card-body
-                        div.row.p-3
-                            div.card-title
-                                form.row.g-2.float-end(action="/create-order" method="post")
-                                    div.col-auto
-                                        a.btn.btn-sm.btn-outline-success(href="/") Devam et
-                                    div.col-auto
-                                        button.btn.btn-sm.btn-outline-success(type="submit") Tamamla
-                            div.table-responsive
-                                table.table.table-hover.align-middle
-                                    thead
-                                        tr
-                                            th(scope="col") #
-                                            th(scope="col") Image
-                                            th(scope="col") Category
-                                            th(scope="col") Name
-                                            th(scope="col") Description
-                                            th(scope="col") Quantity
-                                            th(scope="col") Price
-                                            th(scope="col") Total Price
-                                            th(scope="col" width="100") Actions
-                                    tbody
-                                        if products
-                                            each product in products
+                if products.length >0
+                    div.card.shadow
+                        div.card-body
+                            div.row.p-3
+                                div.card-title
+                                    form.row.g-2.float-end(action="/create-order" method="post")
+                                        input(type="hidden" name="_csrf" value=`${csrfToken}`)
+                                        div.col-auto
+                                            a.btn.btn-sm.btn-outline-success(href="/") Devam et
+                                        div.col-auto
+                                            button.btn.btn-sm.btn-outline-success(type="submit") Tamamla
+                                div.table-responsive
+                                    table.table.table-hover.align-middle
+                                        thead
+                                            tr
+                                                th(scope="col") #
+                                                th(scope="col") Image
+                                                th(scope="col") Name
+                                                th(scope="col") Description
+                                                th(scope="col") Quantity
+                                                th(scope="col") Price
+                                                th(scope="col") Total Price
+                                                th(scope="col" width="100") Actions
+                                        tbody
+
+                                            each product,index in products
                                                 tr
-                                                    th(scope="row") #{product.id}
+                                                    th.fw-bold(scope="row") #{index+1}
                                                     td
-                                                        img.figure-img(src=`/img/${product.imageUrl}` alt=`${product.name}` title=`${product.name}` width="50")
-                                                    each category in categories
-                                                        if category.id === product.categoryId
-                                                            td #{category.name}
-                                                    td #{product.name}
+                                                        img.figure-img(src=`/img/${product.product.imageUrl}` alt=`${product.name}` title=`${product.name}` width="50")
+                                                    td #{product.product.name}
                                                     if product.description && product.description.length > 50
-                                                        td #{product.description.slice(0, 50)}
+                                                        td #{product.product.description.slice(0, 50)}
                                                     else
-                                                        td #{product.description}
-                                                    td.text-center #{product.cartItem.quantity}
+                                                        td #{product.product.description}
+                                                    td.text-center #{product.quantity}
                                                     td.text-center
-                                                        span.fas.fa-lira-sign.smal &nbsp;#{product.price}
+                                                        span.fas.fa-lira-sign.smal &nbsp;#{product.product.price}
                                                     td.text-center
-                                                        span.fas.fa-lira-sign.smal &nbsp;#{product.price*product.cartItem.quantity}
+                                                        span.fas.fa-lira-sign.smal &nbsp;#{product.product.price*product.quantity}
                                                     td.text-center
                                                         form(action="/delete-cartitem" method="post")
+                                                            input(type="hidden" name="_csrf" value=`${csrfToken}`)
                                                             //a(href=`/admin/form-product/${product.id}` title="Edit")
                                                             //    i.fas.fa-edit.fa-lg.text-primary &nbsp;
-                                                            button.fas.fa-trash-alt.fa-lg.text-danger(type="submit" name="productId" value=`${product.id}` title=`${product.name} Delete`)
+                                                            button.fas.fa-trash-alt.fa-lg.text-danger(type="submit" name="productId" value=`${product._id}` title=`${product.product.name} Delete`)
 
-                                    tfoot
-                                        td(colspan="7")
-                                        - let total = 0
-                                        each product in products
-                                            - total += (product.price * product.cartItem.quantity)
-                                        td.text-center
-                                            span.fas.fa-lira-sign.smal &nbsp;#{total}
-                                        td
-                include ../admin/product/deleteModal
+                                        tfoot
+                                            td(colspan="7")
+                                            - let total = 0
+                                            each product in products
+                                                - total += (product.product.price * product.quantity)
+                                            td.text-center
+                                                span.fas.fa-lira-sign.smal &nbsp;#{total}
+                                            td
+                else
+                    h1 No Product
+                    include ../admin/product/deleteModal

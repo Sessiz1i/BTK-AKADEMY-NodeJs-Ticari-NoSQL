@@ -10,13 +10,13 @@ block content
                     div.ms-2.alert.py-3.shadow-lg(class=(feedBack.status ? "alert-success" : 'alert-danger') role="alert")
                         i.fas.fa-check &nbsp;&nbsp;
                         strong The product named
-                            strong.text-primery &nbsp"#{feedBack.name}"&nbsp
+                                strong.text-primery &nbsp"#{feedBack.name}"&nbsp
                         strong has been&nbsp;
-                        if feedBack.status == "create"
+                        if feedBack.status === "create"
                             strong CREATED
-                        else if feedBack.status == "update"
+                        else if feedBack.status === "update"
                             strong UPDATED.
-                        else if feedBack.status == "delete"
+                        else if feedBack.status === "delete"
                             strong DELETED.
         div.row
             div.col-lg-10.mx-auto
@@ -27,54 +27,41 @@ block content
                                 form.row.g-2.float-end(method="post" action="products")
                                     input(type="hidden" name="_csrf" value=`${csrfToken}`)
                                     div.col-auto
-                                        input.form-control.form-control-sm.me-2(type="search" name="search" placeholder="Product Search..." aria-label="Product Search...")
+                                        input.form-control.form-control-sm.me-2(type="search" name="search" placeholder="Category Search..." aria-label="Category Search...")
                                     div.col-auto
                                         button.btn.btn-sm.btn-outline-success(type="submit") Search
                                     div.col-auto
-                                        a.btn.btn-sm.btn-outline-success(href="/admin/form-product/")
+                                        a.btn.btn-sm.btn-outline-success(href="/admin/form-category")
                                             i.fas.fa-plus &nbsp;
                                             span ADD
                             div.table-responsive
                                 table.table.table-hover.align-middle
-                                    thead
-                                        tr.fw-bolder
-                                            th(scope="col") #
-                                            th(scope="col") Image
-                                            //th(scope="col") Category
-                                            th(scope="col") Name
-                                            th(scope="col") Price
+                                    thead.fw-bolder
+                                        tr
+                                            th(th scope="row") Name
                                             th(scope="col") Description
                                             th(scope="col" width="100") Actions
                                     tbody
-                                        if products
-                                            each product,index in products
+                                        if categories
+                                            each category in categories
                                                 tr
-                                                    th.fw-bolder(scope="row") #{index+1}
-                                                    td
-                                                        img.figure-img(src=`/img/${product.imageUrl}` alt=`${product.name}` title=`${product.name}` width="50")
-                                                    if categories
-                                                        each category in categories
-                                                            if category.id === product.categoryId
-                                                                td #{category.name}
-                                                    td #{product.name}
-                                                    td #{product.price}
-                                                    if product.description && product.description.length > 50
-                                                        td #{product.description.slice(0, 50)}
+                                                    td #{category.name}
+                                                    if category.description && category.description.length > 50
+                                                        td #{category.description.slice(0, 50)}
                                                     else
-                                                        td #{product.description}
+                                                        td #{category.description}
                                                     td.text-center
-                                                        a(href=`/admin/form-product/${product._id}` title="Edit")
+                                                        a(href=`/admin/form-category/${category._id}` title="Edit")
                                                             i.fas.fa-edit.fa-lg.text-primary &nbsp;
-                                                        a.fas.fa-trash-alt.fa-lg.text-danger(role="button" data-bs-toggle="modal" data-bs-target=`#deleteModal` title=`${product.name} Detail`
-                                                            data-bs-id=`${product._id}`
-                                                            data-bs-image=`${product.imageUrl}`
-                                                            data-bs-name=`${product.name}`
-                                                            data-bs-price=`${product.price}`
-                                                            data-bs-description=`${product.description}`
-                                                            data-bs-csrf=`${csrfToken}`)
+                                                        a.fas.fa-trash-alt.fa-lg.text-danger(role="button" data-bs-toggle="modal" data-bs-target=`#deleteModal` title=`${category.name} Detail`
+                                                            id=`${category._id}`
+                                                            name=`${category.name}`
+                                                            description=`${category.description}`
+                                                            csrf=`${csrfToken}`)
                                         else
-                                            th(colspan="7")
-                                                span.display-6 #{"Products Not Found"}
+                                            tr
+                                                th(colspan="7")
+                                                    span.display-6 #{"Categories Not Found"}
                             if products
                                 //nav(aria-label="...")
                                 //    ul.pagination

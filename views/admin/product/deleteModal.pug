@@ -1,47 +1,49 @@
 div.modal.fade(id=`deleteModal` tabindex="-1" aria-labelledby="deleteModal" aria-hidden="true")
-	div.modal-dialog.modal-dialog-centered
-		div.modal-content.bg-danger
-
+    div.modal-dialog.modal-dialog-centered
+        div.modal-content.bg-danger
+            div.modal-header
+                h5.modal-title.fw-bold.text-warning.py-0.mt-0#modalName Are you sure you want to delete?
+                button.btn-close(type="button"  data-bs-dismiss="modal" aria-label="Close")
+            div.modal-body
+                table
+                    tr
+                        td
+                            img.figure-img(width="100")
+                        td.ps-4
+                            strong Name :&nbsp;
+                            span#name
+                            br
+                            strong Price :&nbsp;
+                            span#price
+                            i.fas.fa-lira-sign
+                            br
+                            strong Description :&nbsp;
+                            span#desc
+            div.modal-footer
+                form.d-inline-block(method="post" action="/admin/delete-product")
+                    input#_csrf(type="hidden" name="_csrf")
+                    input#_id(type="hidden" name="_id")
+                    input#namei(type="hidden" name="name")
+                    button.btn.btn-secondary(type="button"  data-bs-dismiss="modal") Close
+                    button.btn.btn-warning.ms-2(type="submit") Delete
 script.
-	let deleteModal = document.getElementById('deleteModal')
-	deleteModal.addEventListener('show.bs.modal', event => {
-
-		let button = event.relatedTarget,
-			id = button.getAttribute('data-bs-id'),
-			image = button.getAttribute('data-bs-image'),
-			name = button.getAttribute('data-bs-name'),
-			price = button.getAttribute('data-bs-price'),
-			description = button.getAttribute('data-bs-description')
-
-		let modalContent = deleteModal.querySelector('.modal-content')
-
-		modalContent.innerHTML = `
-						<div class="modal-header">
-							<h5 class="modal-title fw-bold text-warning py-0 mt-0" id="modalName">Are you sure you want to delete?</h5>
-							<button class="btn-close" type="button"  data-bs-dismiss="modal" aria-label="Close"/>
-						</div>
-							<div class="modal-body">
-								<table>
-									<tr>
-										<td><img class="figure-img" src="/img/${image}" alt="${name}" title="${name}" width="100"/></td>
-										<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
-										<td>
-											<strong>Name : </strong><span>${name}</span><br>
-											<strong>Price: </strong><span>${price}</span>&nbsp;<i class="fas fa-lira-sign"></i><br>
-											<strong>Description : </strong><span>${description}</span>
-										</td>
-									</tr>
-								</table>
-							</div>
-							<div class="modal-footer">
-								<form class="d-inline-block" method="post" action="/admin/delete-product">
-									<input type="hidden" name="id" value="${id}">
-									<input type="hidden" name="name" value="${name}">
-									<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-									<button type="submit" class="btn btn-warning">Delete</button>
-								</form>
-							</div>
-					`});
-
-
-
+    const deleteModal = document.getElementById('deleteModal');
+    deleteModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget
+        const id = button.getAttribute('data-bs-id'),
+            image = button.getAttribute('data-bs-image'),
+            name = button.getAttribute('data-bs-name'),
+            price = button.getAttribute('data-bs-price'),
+            desc = button.getAttribute('data-bs-description'),
+            token = button.getAttribute("data-bs-csrf")
+        const contentModal = deleteModal.querySelector("img")
+        contentModal.setAttribute("src", `/img/${image}`)
+        contentModal.setAttribute("title", name)
+        contentModal.setAttribute("alt", name)
+        deleteModal.querySelector("#name").textContent = name
+        deleteModal.querySelector("#price").textContent = `${price} `
+        deleteModal.querySelector("#desc").textContent = desc
+        deleteModal.querySelector("#_csrf").value = token
+        deleteModal.querySelector("#_id").value = id
+        deleteModal.querySelector("#namei").value = name
+    });

@@ -9,25 +9,53 @@ block content
                 div.card.p-3.shadow.table-responsive
                     div.card-body
                         h4.card-title Product Information
-                        form(action=`/admin/add-product` method="POST")
+                        form(action=`/admin/add-product` method="POST" enctype="multipart/form-data")
                             if product
-                                input(type="hidden", name="id" value=`${product.id}`)
+                                input(type="hidden", name="id" value=`${product._id}`)
                             div.row.p-1
+                                input(type="hidden" name="_csrf" value=`${csrfToken}`)
                                 label.form-label.mb-0(for="image") Image
-                                    input.form-control#image(value=(product ? `${product.imageUrl}` : null) type="text" name="imageUrl" aria-describedby="Image")
+                                    input.form-control#image(class=(errors ? errors.image ? 'is-invalid' : 'is-valid' : null)
+                                        value=(old && old.image ? `${old.image}` : product && product.image ? `${product.image}` : null)
+                                        type="file" name="image" aria-describedby="Image")
+                                    if(errors && errors.image)
+                                        div.invalid-feedback.fw-bolder #{errors.image.message}
+                                    else if (errors && !errors.image)
+                                        div.valid-feedback.fw-bolder Looks good!
                             div.row.p-1
                                 label.form-label.mb-0(for="name") Name
-                                    input.form-control#name(value=(product ? `${product.name}` : null) type="text" name="name" aria-describedby="Name")
+                                    input.form-control#name(class=(errors ? errors.name ? 'is-invalid' : "is-valid" : null)
+                                        value=(old && old.name ? `${old.name}` : product && product.name ? `${product.name}` : null)
+                                        type="text" name="name" aria-describedby="Name")
+                                    if(errors && errors.name)
+                                        div.invalid-feedback.fw-bolder #{errors.name.message}
+                                    else if (errors && !errors.name)
+                                        div.valid-feedback.fw-bolder Looks good!
                             div.row.p-1
                                 label.form-label.mb-0(for="price") Price
-                                    input.form-control#price(value=(product ? `${product.price}` : null) type="text" name="price" aria-describedby="Price")
+                                    input.form-control#price(class=(errors ? errors.price ? 'is-invalid' : "is-valid" : null)
+                                        value=(old && old.price ? `${old.price}` : product && product.price ? `${product.price}` : null)
+                                        type="text" name="price" aria-describedby="Price")
+                                    if(errors && errors.price)
+                                        div.invalid-feedback.fw-bolder #{errors.price.message}
+                                    else if (errors && !errors.price)
+                                        div.valid-feedback.fw-bolder Looks good!
                             div.row.p-1
-                                label.form-label.mb-0(for="price") Category
-                                    select.form-select#category(name="categoryId" aria-label="Default select example" aria-describedby="Category")
-                                        option(selected="true") Open this select menu
+                                span Categories
+                                    div.col-auto.form-control(class=(errors ? errors.categories ? 'is-invalid' : "is-valid" : null))
                                         each category in categories
-                                            option(value=`${category.id}` selected=(product && category.id == product.categoryId ? true : false)) #{category.name}
-
+                                            div.form-check.form-check-inline
+                                                if old && old.categories && old.categories.includes(category._id.toString())
+                                                    input.form-check-input(class=(errors ? errors.categories ? 'is-invalid' : "is-valid" : null) checked type="checkbox" id=`${category._id}` name=`categories` value=`${category._id}`)
+                                                else if product && product.categories && product.categories.includes(category._id.toString())
+                                                    input.form-check-input(class=(errors ? errors.categories ? 'is-invalid' : "is-valid" : null) checked type="checkbox" id=`${category._id}` name=`categories` value=`${category._id}`)
+                                                else
+                                                    input.form-check-input(class=(errors ? errors.categories ? 'is-invalid' : "is-valid" : null) type="checkbox" id=`${category._id}` name="categories" value=`${category._id}`)
+                                                label.form-check-label.align-content-center(for=`${category._id}`) #{category.name}
+                                    if(errors && errors.categories)
+                                        div.invalid-feedback.fw-bolder(id="invalidCheck3Feedback") #{errors.categories.message}
+                                    else if (errors && !errors.categories)
+                                        div.valid-feedback.fw-bolder Looks good!
                             if product
                                 div.row.p-1
                                     label.form-label.mb-0(for="description") Description
@@ -38,4 +66,20 @@ block content
                                         textarea.form-control#description(name="description" aria-describedby="Description" rows="4")
                             div.p-1
                                 button.btn.btn-primary.float-end.text-uppercase(type="submit") #{title}
-
+    //script.
+    //    (function () {
+    //        'use strict'
+    //        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    //        const forms = document.querySelectorAll('.needs-validation')
+    //        // Loop over them and prevent submission
+    //        Array.prototype.slice.call(forms)
+    //            .forEach(function (form) {
+    //                form.addEventListener('submit', function (event) {
+    //                    if (!form.checkValidity()) {
+    //                        event.preventDefault()
+    //                        event.stopPropagation()
+    //                    }
+    //                    form.classList.add('was-validated')
+    //                }, false)
+    //            })
+    //    })()

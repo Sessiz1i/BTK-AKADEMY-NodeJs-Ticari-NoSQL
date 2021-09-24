@@ -1,0 +1,35 @@
+extends ../../layouts/main-layout
+block content
+    include ../../partials/navbar
+    div.container
+        div.offset-lg-2
+            include ../../partials/title
+        div.row
+            div.col-lg-8.mx-auto
+                div.card.p-3.shadow.table-responsive
+                    div.card-body
+                        h4.card-title Category Information
+                        form(action=`/admin/add-category` method="POST")
+                            input(type="hidden" name="_csrf" value=`${csrfToken}`)
+                            if old || category
+                                input(type="hidden", name="id" value=`${old && old.id ? old.id : category ? category._id:""}`)
+                            div.row.p-1
+                                label.form-label.mb-0(for="name") Name
+                                    input.form-control#name(class=(errors ? errors.name ? 'is-invalid' : "is-valid" : null)
+                                        value=(old && old.name ? `${old.name}` : category && category.name ? `${category.name}` : null)
+                                        type="text" name="name" aria-describedby="Name")
+                                    if(errors && errors.name)
+                                        div.invalid-feedback.fw-bolder #{errors.name}
+                                    else if (errors && !errors.name)
+                                        div.valid-feedback.fw-bolder Looks good!
+                            div.row.p-1
+                                label.form-label(for="description") Description
+                                    textarea.form-control#description(class=(errors ? errors.description ? 'is-invalid' : "is-valid" : null)
+                                        name="description" aria-describedby="Description" rows="4").
+                                        #{old && old.description ? `${old.description}` : category && category.description ? `${category.description}` : null}
+                                    if(errors && errors.description)
+                                        div.invalid-feedback.fw-bolder #{errors.description}
+                                    else if (errors && !errors.description)
+                                        div.valid-feedback.fw-bolder Looks good!
+                            div.p-1
+                                button.btn.btn-primary.float-end.text-uppercase(type="submit") #{title}

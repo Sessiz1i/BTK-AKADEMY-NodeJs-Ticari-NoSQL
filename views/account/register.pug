@@ -1,0 +1,27 @@
+extends ../layouts/main-layout
+block content
+    //include ../partials/navbar
+    div.container
+        div.offset-lg-3
+            include ../partials/title
+        div.row
+            div.col-lg-6.mx-auto
+                div.card.p-3.shadow.table-responsive
+                    div.card-body
+                        h4.card-title #{title} Information
+                        form(action=`/account/register` method="POST")
+                            input(type="hidden" name="_csrf" value=`${csrfToken}`)
+                            div.row.p-1
+                                label.form-label.mb-0(for="name") Name
+                                    input.form-control#name(type="text" name="name" aria-describedby="Name")
+                            div.row.p-1
+                                label.form-label.mb-0(for="email") Email
+                                    input.form-control#email(type="text" name="email" aria-describedby="Email")
+                            div.row.p-1
+                                label.form-label.mb-0(for="password") Password
+                                    input.form-control#password(type="password" name="password" aria-describedby="Password")
+                            div.px-1
+                                a.nav-link(href="/account/login") I Have an Account...
+                            div.p-1
+                                button.btn.btn-primary.float-end.text-uppercase(type="submit") #{title}
+

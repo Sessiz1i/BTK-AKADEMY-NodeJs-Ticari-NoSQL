@@ -1,0 +1,7 @@
+extends ../layouts/main-layout
+block content
+    include ../partials/navbar
+    div.d-flex.align-items-center.justify-content-center(style="height: 600px")
+        a.text-decoration-none( href=`${url}`)
+            h1.fw-bold.display-5.text-center !{title}
+

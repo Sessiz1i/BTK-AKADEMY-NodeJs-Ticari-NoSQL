@@ -2,139 +2,99 @@
 
 const Product = require("../../models/product")
 const Category = require("../../models/category")
-const CartItem = require("../../models/cartItem")
+const User = require("../../models/user")
+const Order = require("../../models/order")
 
 // Products Controller
 exports.index = async (req, res, next) => {
-	const resData = {
-		title: "Ahsent Shopping",
-		products: await Product.findAll({attributes: ["id", "name", "imageUrl", "price", "description"]}),
-		categories: await Category.findAll({attributes: ["id", "name", "description"]})
-	}
-	res.render("home/index", resData);
+    const resData =
+        {
+            title: "Ahsent Shopping",
+            products: await Product.find(),
+            categories: await Category.find()
+        }
+
+    res.render("home/index", resData);
 }
 
-exports.products = (req, res, next) => {
-	const resData = {title: "Products"}
-	Category.findAll({attributes: ["id", "name", "description"]})
-	.then(categories => {
-		resData.categories = categories
-	}).then(async _ => {
-		await Product.findAll({attributes: ["id", "name", "imageUrl", "price", "description"]})
-		.then(products => {
-			resData.products = products
-		}).catch(err => console.error("Product", err))
-
-		res.render("home/products", resData)
-	}).catch(err => console.error("Product", err))
-
+exports.products = async (req, res, next) => {
+    const resData =
+        {
+            title: "Products",
+            products: await Product.find(),
+            categories: await Category.find()
+        }
+    res.render("home/products", resData)
 }
 
-exports.getProductsByCategory = (req, res, next) => {
-	Category.findAll({attributes: ["id", "name", "description"]})
-	.then(async categories => {
-		const selectCategory = categories.find(i => i.name.replaceAll(" ", "-").toLowerCase() === req.params.category)
-		const resData = {
-			title: selectCategory.name,
-			categories: categories,
-			products: await selectCategory.getProducts() // getProducts() Sequelize nin otomatik functionu
-		}
-		res.render("home/products", resData);
-	}).catch(err => console.log(err))
+exports.getProductsByCategory = async (req, res, next) => {
+    const resData = {}
+    resData.categories = await Category.find()
+    resData.category = resData.categories.find(i => i.name.replace(" ", "-").toLowerCase() === req.params.category)
+    resData.title = resData.category.name
+    resData.products = await Product.find({categories: resData.category._id})
+
+    res.render("home/products", resData);
 }
 
 // Cart Controller
-exports.cartIndex = async (req, res, next) => {
-	const resData = {
-		title: "Cart",
-		categories: await Category.findAll()
-	}
-	req.user.getCart()
-	.then(cart => {
-		return cart.getProducts()
-	})
-	.then(async products => {
-		resData.products = products
-		res.render("home/cart", resData)
-	})
-	.catch(err => console.log(err))
+exports.indexCart = async (req, res, next) => {
+    const resData = {}
+    resData.title = "Cart"
+    req.user.populate("cart.items.product", "name price imageUrl")
+        .execPopulate()
+        .then(user => {
+            resData.products = user.cart.items
+            res.render("home/cart", resData)
+        })
+
+
 }
 
 exports.postCart = (req, res, next) => {
-	let userCart, quantity = 1
-	req.user.getCart()
-	.then(cart => {
-		userCart = cart
-		return cart.getProducts({where: {id: req.body.productId}})
-	})
-	.then(products => {
-		if (products.length > 0) {
-			quantity += products[0].cartItem.quantity
-			return products[0]
-		}
-		return Product.findByPk(req.body.productId)
-	})
-	.then(product => {
-		userCart.addProduct(product, {through: {quantity}})
-		res.redirect("/cart")
-	})
-	.catch(err => console.log(err))
+    const productId = req.body.productId
+    Product.findById(productId)
+        .then(product => {
+            return req.user.addToCart(product)
+        })
+        .then(() => {
+            res.redirect("/cart")
+        })
+        .catch(err => console.error(err))
 }
 
 exports.deleteCart = (req, res, next) => {
-	req.user.getCart()
-	.then(cart => {
-		return cart.getProducts({where: {id: req.body.productId}})
-	})
-	.then((product) => {
-		product[0].cartItem.destroy()
-		res.redirect("/cart")
-	})
-	.catch(err => console.error(err))
+    req.user.deleteCartItem(req.body.productId)
+    res.redirect("/cart")
 }
 
 //Order Controller
 exports.indexOrder = async (req, res, next) => {
-	const resData = {
-		title: "Orders",
-		categories: await Category.findAll()
-	}
-	req.user
-	.getOrders({include:["products"]})
-	.then(orders => {
-		resData.orders = orders
-		console.log(resData)
-		res.render('home/orders',resData)
-	})
-	.catch(err => console.error(err))
+    const resData = {
+        title: "Orders",
+        orders: await Order.find({"user._id":req.user._id})
+    }
+    res.render('home/orders', resData)
 }
 exports.createOrder = async (req, res, next) => {
-	let userCart
-	req.user.getCart()
-	.then(cart => {
-		userCart = cart
-		return cart.getProducts()
-	})
-	.then(products => {
-		req.user.createOrder()
-		.then(order => {
-			return order.addProduct(products.map(product => {
-				product.orderItem = {
-					quantity: product.cartItem.quantity,
-					price: product.price
-				}
-				return product
-			}))
-		})
-		.then(_ => {
-			userCart.setProducts(null)
-		})
-		.then(_ => {
-			res.redirect("/orders")
-		})
-		.catch(err => console.error(err))
-	})
+    const resData = {}
+    resData.title = "Order"
 
+    req.user.populate("cart.items.product", "_id name price imageUrl")
+        .execPopulate()
+        .then(user => {
+            const newOrder = new Order({
+                user: req.user,
+                items: user.cart.items
+            })
+            return newOrder.save()
+        })
+        .then(() => {
+            return req.user.clearCart()
+        })
+        .then(() => {
+            res.redirect("/orders")
+        })
+        .catch(err => console.error(err))
 }
-
 

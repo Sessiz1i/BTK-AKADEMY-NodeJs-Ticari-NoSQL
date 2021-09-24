@@ -1,99 +1,94 @@
 // Models
 const Product = require("../../models/product")
 const Category = require("../../models/category");
-const User = require("../../models/user")
-const Sequelize = require("sequelize");
-const Op = Sequelize.Op;
-const {pagination} = require("pagination-express");
-
+const mongoose = require("mongoose");
 // ---------- Index Product ----------
 exports.index = async (req, res, next) => {
-	const search = req.body.search
-	let page, limit, feedBack;
-	if (req.query.status) {
-		feedBack = {status: req.query.status, name: req.query.name}
-	}
-	if (req.query.page) {
-		page = req.query.page
-		limit = req.query.limit
-	} else {
-		page = 1
-		limit = 5
-	}
-	// Search
-	// Query
-	const query = {}
-	if (search && search !== "") {
-		query.where = {name: {[Op.like]: `%${search}%`}}
-	}
-	query.attributes = ["id", "name", "imageUrl", "price", "description", "categoryId"]
-	query.order = [["id", "ASC"]]
-	// Option
-	const option = {
-		searchPath: search,
-		req: req,
-		page: page,
-		limit: limit,
-		metatag: "paginationInfo", // Optional for changeing default name of metatag
-		lists: "products", // Optional for changeing default name of lists
-		range: 5,  // Optional if need paging
-	};
-
-	// ---------- resData
-
-	const resData = {
-		title: "Product List",
-		feedBack: feedBack,
-		products: await pagination(Product, option, {...query}),
-		categories: await Category.findAll()
-	};
-	res.render("admin/product/index", resData)
-
+    const resData = {};
+    if (req.query.n) {
+        resData.feedBack = {status: req.query.s, name: req.query.n}
+    }
+    resData.title = "Product List"
+    resData.products = await Product.find({user: req.user._id})
+    // .find({price:{$eq:2000}}) 		// eq (equal) = Eşit
+    // .find({price:{$ne:2000}}) 		// ne (not equal) != Eşit değil
+    // .find({price:{$gt:2000}}) 		// gt (greater than) > Büyükse
+    // .find({price:{$gte:2000}}) 		// gte (greater than or equal) >= Büyük veya eşitse
+    // .find({price:{$lt:2000}}) 		// lt (less than) < Küçükse
+    // .find({price:{$lte:2000}}) 		// lte (less than or equal) <= Küçük veya eşitse
+    // .find({price:{$in:[1000,3000}}) 	// in  Varsa
+    // .find({price:{$nin:2000}}) 		// nin  Yoksa
+    // .find({price: {$gte: 1000, $lte: 3000}}) // 1000 den büyük 3000 den küçük
+    // .find().or([{price: {$gt:2000},name:"Samsung S6"}]) // or Veya
+    // .find().and([{price: {$gt:2000},name:"Samsung S6"}]) // and Ve
+    // Search
+    // .find({name: /^Samsung/}) 		// Samsung ile başlasın
+    // .find({name:/Samsung$/})		// Samsung ile Bitsin
+    // .find({name:/.*Samsung.*/})	// Samsung içinde geçen
+    res.render("admin/product/index", resData)
 }
 
 // ---------- Form Product ----------
-exports.formProduct = async (req, res, next) => {
-	const resData = {}
-	await Product.findByPk(req.params.id)
-	.then(async product => {
-		if (product) {
-			resData.product = product
-			resData.title = "Edit Product"
-		} else {
-			resData.title = "Add Product"
-		}
-	}).then(async _ => {
-		resData.categories = await Category.findAll()
-	}).catch(err => console.log(err))
-	res.render("admin/product/form", resData)
+exports.form = async (req, res, next) => {
+    const resData = {categories: await Category.find()};
+    if (req.params.id) {
+        resData.title = "Edit Product"
+        resData.product = await Product.findOne({_id: req.params.id, user: req.user._id})
+    } else if (!req.params.id) {
+        resData.title = "Add Product"
+    }
+    res.render("admin/product/form", resData)
+
 }
 
 // ---------- Store Product ----------
-exports.store = async (req, res, next) => {
-	let status, name
-	await Product.findByPk(req.body.id)
-	.then(async product => {
-		if (product) {
-			await product.update({...req.body, userId: req.user.id})
-			status = 'update'
-			name = product.name
-		} else {
-			await req.user.createProduct(req.body)
-			// await Product.create({...req.body, userId: req.user.id})
-			.then(product =>{
-				status = 'create'
-				name = product.name
-			})
-		}
-		res.redirect(`/admin/products?status=${status}&name=${name}`)
-	}).catch(err => console.log(err))
+exports.store = (req, res, next) => {
+    delete req.body._csrf
+    let query;
+    if (req.body.id) {
+        Product.findByIdAndUpdate(req.body.id, req.body)
+            .then((result) => {
+                query = `?s=update&n=${result.name}`
+                res.redirect(`/admin/products${query}`)
+            })
+            .catch(err => console.error(err))
+    } else if (!req.body.id) {
+        Product.create({
+            ...req.body,
+            user: req.user,
+            isActive: true,
+            tags: "telefon"
+        }).then(() => {
+            query = `?s=create&n=${req.body.name}`
+            res.redirect(`/admin/products${query}`)
+        }).catch(async err => {
+            const errors = {}
+            // TODO resData ya hataları doldur
+            if (err.name === "ValidationError") {
+                for (const [index, error] of Object.entries(err.errors)) {
+                    errors[index] = {message: error.message}
+                }
+                const resData = {categories: await Category.find()};
+                resData.title = "Add Product"
+                resData.errors = errors
+                resData.old = req.body
+                res.render("admin/product/form", resData)
+            } else {
+                next(err)
+            }
+        })
+    }
 }
 
 // ---------- Delete Product ----------
-exports.delete = async (req, res, next) => {
-	await Product.destroy({where: {id: req.body.id}})
-	.then(product => {
-		res.redirect(`/admin/products?status=delete&name=${req.body.name}`);
-	})
-
+exports.delete = (req, res, next) => {
+    Product.deleteOne({_id: req.body._id, user: req.user._id})
+        .then(result => {
+            if (result.deletedCount === 0) {
+                return res.redirect("/")
+            } else {
+                let query = `?s=delete&n=${req.body.name}`
+                res.redirect(`/admin/products${query}`)
+            }
+        })
 }
